@@ -1,0 +1,13 @@
+# sidekiq-cron schedule
+# Loaded automatically on Sidekiq server startup via config/initializers/sidekiq.rb
+#
+# Budget: NewsAPI free tier = 100 req/day.
+# With 2 languages configured, every run costs 2 requests.
+# */30 → 48 runs/day × 2 = 96 req/day  (safest frequent interval)
+# If you add a 3rd language, drop to */45 (32 runs × 3 = 96 req/day).
+
+news_fetcher:
+  cron: "*/30 * * * *"
+  class: NewsFetcherJob
+  queue: default
+  description: "Fetch corruption news from NewsAPI (30 min interval, ~96 req/day for 2 languages)"

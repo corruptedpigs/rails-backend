@@ -1,0 +1,28 @@
+default: &default
+  # Must match the cron in config/schedule.yml.
+  # Used as fallback window on the very first run (no Redis last_run stored yet).
+  # Budget: 100 req/day ÷ languages. With 2 languages: max 50 runs/day → every 30 min.
+  fetch_interval_minutes: 30
+  relevance_threshold: 0.7
+  max_audit_versions: 10
+  short_url_base: "https://cpigs.to"
+  languages:
+    - code: "pt"
+      keywords: "corrupção OR suborno OR desvio de dinheiro público OR fraude OR nepotismo"
+      telegram_chat_id: "@cpigsgame"
+      telegram_topic_id: 2
+    - code: "en"
+      keywords: "corruption OR bribery OR embezzlement OR fraud OR kickback OR graft"
+      telegram_chat_id: "@cpigsgame"
+      telegram_topic_id: 4
+
+development:
+  <<: *default
+  short_url_base: "http://localhost:3000"
+
+test:
+  <<: *default
+  short_url_base: "http://localhost:3000"
+
+production:
+  <<: *default

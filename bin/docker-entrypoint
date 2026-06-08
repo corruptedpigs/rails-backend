@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+# Retry loop: wait for Postgres and create the database if it doesn't exist yet.
+# db:create is idempotent (exits 0 if already exists) and fails if Postgres is unreachable.
+echo "Setting up database..."
+retries=30
+until bundle exec rails db:create 2>&1; do
+  retries=$((retries - 1))
+  if [ "$retries" -le 0 ]; then
+    echo "ERROR: Could not reach database after too many retries."
+    exit 1
+  fi
+  echo "  Postgres not ready — retrying in 2s ($retries left)..."
+  sleep 2
+done
+
+echo "Running migrations..."
+bundle exec rails db:migrate
+
+echo "Starting: $*"
+exec "$@"

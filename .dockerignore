@@ -1,0 +1,17 @@
+# Ignore sensitive files
+.env
+config/master.key
+config/credentials.yml.enc
+
+# Ignore logs and temp files
+log/*
+tmp/*
+!log/.keep
+!tmp/.keep
+!tmp/pids/.keep
+
+# Ignore assets that aren't source
+public/assets
+
+# Ignore bundler output when using bind mount
+# (gems are in the 'bundle' named volume instead)

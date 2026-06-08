@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+# The worker does NOT run migrations — the web process owns that.
+# We just wait for the Postgres TCP port to be reachable before
+# starting Sidekiq (faster than a full `rails runner` check).
+DB_HOST=$(echo "${DATABASE_URL}" | sed 's|.*@\([^/:]*\).*|\1|')
+echo "Waiting for Postgres at ${DB_HOST}:5432..."
+retries=30
+until (echo > /dev/tcp/"${DB_HOST}"/5432) 2>/dev/null; do
+  retries=$((retries - 1))
+  if [ "$retries" -le 0 ]; then
+    echo "ERROR: Postgres not reachable after too many retries."
+    exit 1
+  fi
+  echo "  not ready — retrying in 2s ($retries left)..."
+  sleep 2
+done
+
+echo "Postgres ready. Starting: $*"
+exec "$@"

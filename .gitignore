@@ -1,0 +1,42 @@
+# Ignore bundler config.
+/.bundle
+
+# Ignore all environment files (except templates).
+.env*
+!.env.example
+
+# Ignore default SQLite file.
+/db/*.sqlite3
+/db/*.sqlite3-*
+/db/*.sqlite3-shm
+/db/*.sqlite3-wal
+
+# Ignore all logfiles and tempfiles.
+/log/*
+!/log/.keep
+/tmp/*
+!/tmp/.keep
+!/tmp/pids
+/tmp/pids/*
+!/tmp/pids/.keep
+
+# Ignore pidfiles, but keep the directory.
+/tmp/pids/*.pid
+
+# Ignore storage (if Active Storage is used).
+/storage/*
+!/storage/.keep
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+/config/credentials/*.key
+
+# Ignore node_modules and yarn files if any JS tooling is added.
+/node_modules
+/yarn-error.log
+
+# Ignore ruby-lsp internal state.
+/.ruby-lsp
+
+# Ignore macOS metadata.
+.DS_Store

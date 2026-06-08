@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cpigs
+      POSTGRES_PASSWORD: cpigs_password
+      POSTGRES_DB: cpigs_news_bot_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cpigs"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    command: ["bin/rails", "server", "-b", "0.0.0.0"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://cpigs:cpigs_password@postgres/cpigs_news_bot_development
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "3000:3000"
+    volumes:
+      # Source code only — gems stay baked in the image so a rebuild
+      # is required when Gemfile changes (prevents stale gem volumes).
+      - .:/rails
+
+  worker:
+    build: .
+    entrypoint: ["bin/worker-entrypoint"]
+    command: ["bundle", "exec", "sidekiq"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://cpigs:cpigs_password@postgres/cpigs_news_bot_development
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/rails
+
+volumes:
+  postgres_data:
+  redis_data:
